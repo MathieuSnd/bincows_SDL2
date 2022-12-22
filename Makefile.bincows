@@ -1,0 +1,86 @@
+MAKE := make
+CC     := $(GNU_PREFIX)x86_64-elf-gcc
+LD     := $(GNU_PREFIX)x86_64-elf-ld
+
+
+CFLAGS := -O3 -fno-inline -D__BINCOWS__ -DDYNAPI_NEEDS_DLOPEN \
+		  -I../bincows/blibc/include -I./include --freestanding -g
+
+
+
+
+# Makefile to build the SDL library
+
+INCLUDE = -I./include
+AR	= x86_64-elf-ar
+RANLIB	= ranlib
+
+TARGET  = libSDL2.a
+TESTTARGET = libSDL2_test.a
+
+SOURCES = \
+	src/*.c \
+	src/atomic/*.c \
+	src/audio/*.c \
+	src/audio/dummy/*.c \
+	src/cpuinfo/*.c \
+	src/events/*.c \
+	src/file/*.c \
+	src/haptic/dummy/*.c \
+	src/haptic/*.c \
+	src/hidapi/*.c \
+	src/joystick/*.c \
+	src/joystick/dummy/*.c \
+	src/loadso/dummy/*.c \
+	src/power/*.c \
+	src/filesystem/dummy/*.c \
+	src/locale/*.c \
+	src/locale/dummy/*.c \
+	src/misc/*.c \
+	src/misc/dummy/*.c \
+	src/render/*.c \
+	src/render/software/*.c \
+	src/sensor/*.c \
+	src/sensor/dummy/*.c \
+	src/stdlib/*.c \
+	src/libm/*.c \
+	src/thread/*.c \
+	src/timer/*.c \
+	src/video/*.c \
+	src/video/yuv2rgb/*.c \
+	src/video/dummy/*.c \
+	src/locale/unix/* \
+	src/timer/dummy/*.c
+
+# threads
+SOURCES += \
+	src/thread/generic/SDL_systls.c \
+	src/thread/generic/SDL_syssem.c \
+	src/thread/generic/SDL_syscond.c \
+								    \
+	src/thread/pthread/SDL_sysmutex.c \
+	src/thread/pthread/SDL_systhread.c
+
+
+#	src/timer/dummy/*.c \
+	src/misc/unix/* \
+	src/timer/unix/* 
+
+
+TSOURCES = src/test/*.c
+
+OBJECTS = $(shell echo $(SOURCES) | sed -e 's,\.c,\.o,g')
+TOBJECTS= $(shell echo $(TSOURCES) | sed -e 's,\.c,\.o,g')
+
+all: $(TARGET) # $(TESTTARGET)
+
+$(TARGET): $(OBJECTS)
+	$(AR) crv $@ $^
+	$(RANLIB) $@
+
+$(TESTTARGET): $(TOBJECTS)
+	$(AR) crv $@ $^
+	$(RANLIB) $@
+
+clean:
+	rm -f $(TARGET) $(TESTTARGET) $(OBJECTS) $(TOBJECTS)
